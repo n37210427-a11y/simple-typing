@@ -333,6 +333,7 @@
       justify-content: center;
       cursor: pointer;
       outline: none;
+      touch-action: manipulation;
       transition: background 0.1s var(--ease), transform 0.1s var(--ease), border-color 0.15s var(--ease);
       -webkit-tap-highlight-color: transparent;
     }
@@ -869,9 +870,12 @@
       handleInputKey(e.key);
     });
 
-    virtualKeyboard.addEventListener("click", (e) => {
+    // pointerdown을 사용하여 터치 지연 없이 즉시 입력되도록 개선
+    virtualKeyboard.addEventListener("pointerdown", (e) => {
       const btn = e.target.closest(".key");
       if (!btn) return;
+      
+      e.preventDefault(); // 모바일 더블탭 확대 방지 및 즉시 반응
 
       let keyVal = btn.dataset.key;
       if (btn.classList.contains("char-key") && isShiftActive) {
