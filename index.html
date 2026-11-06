@@ -49,27 +49,42 @@
       align-items: center;
     }
 
+    /* 누를 수 있는 요소임을 한눈에 알 수 있는 버튼/배지 형태 디자인 */
     .logo {
-      font-size: 1.125rem;
-      font-weight: 600;
-      letter-spacing: -0.03em;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
       color: var(--text-main);
       text-decoration: none;
       cursor: pointer;
-      padding: 0.4rem 0.9rem;
+      padding: 0.45rem 1rem;
       border-radius: 9999px;
-      border: 1px solid transparent;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
       transition: all 0.3s var(--ease);
     }
 
     .logo:hover {
-      background-color: var(--surface);
-      border-color: var(--border);
+      border-color: #555;
       transform: translateY(-1px);
     }
 
     .logo:active {
       transform: translateY(0px) scale(0.98);
+    }
+
+    .logo-arrow {
+      font-size: 0.85rem;
+      opacity: 0.5;
+      transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+    }
+
+    .logo:hover .logo-arrow {
+      transform: translate(2px, -2px);
+      opacity: 1;
     }
 
     .controls {
@@ -285,7 +300,11 @@
 
   <div class="container">
     <header>
-      <a href="https://example.com" class="logo">The Simple Series</a>
+      <!-- 로고 부분에 버튼형 백그라운드와 화살표(↗)를 주어 클릭 유도 -->
+      <a href="https://example.com" class="logo">
+        <span>The Simple Series</span>
+        <span class="logo-arrow">↗</span>
+      </a>
       <nav class="controls" id="mode-controls">
         <button class="btn active" data-count="1">1 sent</button>
         <button class="btn" data-count="5">5 sent</button>
