@@ -30,7 +30,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 1.5rem 1rem;
       overflow-x: hidden;
       user-select: none;
     }
@@ -40,7 +40,7 @@
       max-width: 900px;
       display: flex;
       flex-direction: column;
-      gap: 3rem;
+      gap: 2rem;
     }
 
     header {
@@ -49,7 +49,6 @@
       align-items: center;
     }
 
-    /* 누를 수 있는 요소임을 한눈에 알 수 있는 버튼/배지 형태 디자인 */
     .logo {
       font-size: 1rem;
       font-weight: 500;
@@ -72,24 +71,14 @@
       transform: translateY(-1px);
     }
 
-    .logo:active {
-      transform: translateY(0px) scale(0.98);
-    }
-
     .logo-arrow {
       font-size: 0.85rem;
       opacity: 0.5;
-      transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
-    }
-
-    .logo:hover .logo-arrow {
-      transform: translate(2px, -2px);
-      opacity: 1;
     }
 
     .controls {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.25rem;
       background: var(--surface);
       padding: 0.25rem;
       border-radius: 9999px;
@@ -100,8 +89,8 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
       font-weight: 500;
       border-radius: 9999px;
       cursor: pointer;
@@ -117,7 +106,7 @@
 
     .stats {
       display: flex;
-      gap: 3rem;
+      gap: 2.5rem;
     }
 
     .stat-item {
@@ -134,7 +123,7 @@
     }
 
     .stat-value {
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       font-weight: 600;
     }
 
@@ -142,7 +131,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 1.5rem;
-      height: 280px;
+      height: 220px;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -168,7 +157,7 @@
       position: absolute;
       left: 50%;
       white-space: nowrap;
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 500;
       letter-spacing: 0.05em;
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -277,12 +266,58 @@
       border: 1px solid var(--border);
     }
 
-    .action-btn:hover {
-      opacity: 0.85;
+    /* 자체 가상 키보드 스타일 */
+    .virtual-keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      touch-action: manipulation;
     }
 
-    .action-btn:active {
-      transform: scale(0.96);
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.35rem;
+      width: 100%;
+    }
+
+    .key {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      height: 42px;
+      flex: 1;
+      max-width: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.1s var(--ease), transform 0.1s var(--ease);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .key:active, .key.pressed {
+      background: var(--text-main);
+      color: var(--bg);
+      transform: scale(0.94);
+    }
+
+    .key.special {
+      flex: 1.5;
+      max-width: 80px;
+      font-size: 0.8rem;
+    }
+
+    .key.space {
+      flex: 5;
+      max-width: 280px;
     }
 
     @keyframes pulse {
@@ -294,14 +329,19 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @media (max-width: 600px) {
+      .controls { overflow-x: auto; }
+      .stream-track { font-size: 1.4rem; }
+      .key { height: 38px; font-size: 0.8rem; }
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
     <header>
-      <!-- 로고 부분에 버튼형 백그라운드와 화살표(↗)를 주어 클릭 유도 -->
-      <a href="https://example.com" class="logo">
+      <a href="https://simple-typing-fawn.vercel.app" class="logo">
         <span>The Simple Series</span>
         <span class="logo-arrow">↗</span>
       </a>
@@ -363,6 +403,49 @@
         <div class="progress-bar-fill" id="progress-fill"></div>
       </div>
     </main>
+
+    <!-- 자체 가상 키보드 영역 -->
+    <div class="virtual-keyboard" id="virtual-keyboard">
+      <div class="keyboard-row">
+        <button class="key" data-key="q">q</button>
+        <button class="key" data-key="w">w</button>
+        <button class="key" data-key="e">e</button>
+        <button class="key" data-key="r">r</button>
+        <button class="key" data-key="t">t</button>
+        <button class="key" data-key="y">y</button>
+        <button class="key" data-key="u">u</button>
+        <button class="key" data-key="i">i</button>
+        <button class="key" data-key="o">o</button>
+        <button class="key" data-key="p">p</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key" data-key="a">a</button>
+        <button class="key" data-key="s">s</button>
+        <button class="key" data-key="d">d</button>
+        <button class="key" data-key="f">f</button>
+        <button class="key" data-key="g">g</button>
+        <button class="key" data-key="h">h</button>
+        <button class="key" data-key="j">j</button>
+        <button class="key" data-key="k">k</button>
+        <button class="key" data-key="l">l</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key" data-key="z">z</button>
+        <button class="key" data-key="x">x</button>
+        <button class="key" data-key="c">c</button>
+        <button class="key" data-key="v">v</button>
+        <button class="key" data-key="b">b</button>
+        <button class="key" data-key="n">n</button>
+        <button class="key" data-key="m">m</button>
+        <button class="key special" data-key="Backspace">⌫</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key special" data-key=",">,</button>
+        <button class="key space" data-key=" ">space</button>
+        <button class="key special" data-key=".">.</button>
+        <button class="key special" data-key="'">'</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -523,6 +606,7 @@
     const progressBg = document.getElementById("progress-bg");
     const modeControls = document.getElementById("mode-controls");
     const liveStats = document.getElementById("live-stats");
+    const virtualKeyboard = document.getElementById("virtual-keyboard");
 
     const wpmVal = document.getElementById("wpm-val");
     const accVal = document.getElementById("acc-val");
@@ -638,12 +722,9 @@
       resultsContainer.style.display = "flex";
     }
 
-    window.addEventListener("keydown", (e) => {
-      if (isCompleted || e.ctrlKey || e.altKey || e.metaKey) return;
-
-      if (e.key === " ") {
-        e.preventDefault();
-      }
+    // 공통 입력 처리함수 (물리 키보드 & 가상 키보드 모두 대응)
+    function handleInputKey(keyVal) {
+      if (isCompleted) return;
 
       const text = targetSentences[currentSentenceIndex];
       const chars = track.querySelectorAll(".char");
@@ -653,7 +734,7 @@
         timer = setInterval(updateStats, 500);
       }
 
-      if (e.key === "Backspace") {
+      if (keyVal === "Backspace") {
         playCreamySound('backspace');
         if (charIndex > 0) {
           charIndex--;
@@ -663,11 +744,15 @@
         return;
       }
 
-      if (e.key.length === 1 && charIndex < text.length) {
+      if (keyVal.length === 1 && charIndex < text.length) {
         totalTyped++;
-        playCreamySound(e.key === " " ? 'space' : 'default');
+        playCreamySound(keyVal === " " ? 'space' : 'default');
 
-        if (e.key === text[charIndex]) {
+        // 대소문자 구분을 위해 현재 타이핑할 글자와 비교
+        const targetChar = text[charIndex];
+        const isMatch = (keyVal.toLowerCase() === targetChar.toLowerCase());
+
+        if (isMatch) {
           chars[charIndex].className = "char correct";
         } else {
           chars[charIndex].className = "char incorrect";
@@ -693,6 +778,32 @@
           }, 200);
         }
       }
+    }
+
+    // 실제 키보드 입력
+    window.addEventListener("keydown", (e) => {
+      if (isCompleted || e.ctrlKey || e.altKey || e.metaKey) return;
+      if (e.key === " ") e.preventDefault();
+
+      // 화면 키보드 눌림 피드백
+      const keyBtn = virtualKeyboard.querySelector(`[data-key="${e.key.toLowerCase()}"]`) || 
+                     virtualKeyboard.querySelector(`[data-key="${e.key}"]`);
+      if (keyBtn) {
+        keyBtn.classList.add("pressed");
+        setTimeout(() => keyBtn.classList.remove("pressed"), 100);
+      }
+
+      handleInputKey(e.key);
+    });
+
+    // 가상 키보드 터치/클릭 입력
+    virtualKeyboard.addEventListener("click", (e) => {
+      const btn = e.target.closest(".key");
+      if (!btn) return;
+
+      const keyVal = btn.dataset.key;
+      handleInputKey(keyVal);
+      btn.blur();
     });
 
     modeControls.addEventListener("click", (e) => {
