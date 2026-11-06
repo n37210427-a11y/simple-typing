@@ -266,15 +266,49 @@
       border: 1px solid var(--border);
     }
 
-    /* 자체 가상 키보드 스타일 */
-    .virtual-keyboard {
+    .mobile-toggle-wrapper {
       display: flex;
+      justify-content: center;
+    }
+
+    .mobile-toggle-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.55rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.3s var(--ease);
+    }
+
+    .mobile-toggle-btn:hover {
+      border-color: #555;
+    }
+
+    .mobile-toggle-btn.active {
+      background: var(--text-main);
+      color: var(--bg);
+    }
+
+    .virtual-keyboard {
+      display: none;
       flex-direction: column;
       gap: 0.5rem;
       width: 100%;
-      max-width: 700px;
+      max-width: 760px;
       margin: 0 auto;
       touch-action: manipulation;
+      animation: fadeIn 0.3s var(--ease) forwards;
+    }
+
+    .virtual-keyboard.open {
+      display: flex;
     }
 
     .keyboard-row {
@@ -288,18 +322,18 @@
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text-main);
-      font-size: 0.9rem;
+      font-size: 1.05rem;
       font-weight: 500;
-      border-radius: 0.5rem;
-      height: 42px;
+      border-radius: 0.6rem;
+      height: 48px;
       flex: 1;
-      max-width: 50px;
+      max-width: 58px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       outline: none;
-      transition: background 0.1s var(--ease), transform 0.1s var(--ease);
+      transition: background 0.1s var(--ease), transform 0.1s var(--ease), border-color 0.15s var(--ease);
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -311,13 +345,19 @@
 
     .key.special {
       flex: 1.5;
-      max-width: 80px;
-      font-size: 0.8rem;
+      max-width: 90px;
+      font-size: 0.85rem;
+    }
+
+    .key.shift-key.active-shift {
+      background: var(--text-main);
+      color: var(--bg);
+      border-color: var(--text-main);
     }
 
     .key.space {
       flex: 5;
-      max-width: 280px;
+      max-width: 320px;
     }
 
     @keyframes pulse {
@@ -333,7 +373,8 @@
     @media (max-width: 600px) {
       .controls { overflow-x: auto; }
       .stream-track { font-size: 1.4rem; }
-      .key { height: 38px; font-size: 0.8rem; }
+      .key { height: 50px; font-size: 1rem; }
+      .key.special { font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -404,39 +445,46 @@
       </div>
     </main>
 
-    <!-- 자체 가상 키보드 영역 -->
+    <div class="mobile-toggle-wrapper">
+      <button class="mobile-toggle-btn" id="mobile-toggle-btn">
+        <span>📱</span>
+        <span>Mobile Keyboard</span>
+      </button>
+    </div>
+
     <div class="virtual-keyboard" id="virtual-keyboard">
       <div class="keyboard-row">
-        <button class="key" data-key="q">q</button>
-        <button class="key" data-key="w">w</button>
-        <button class="key" data-key="e">e</button>
-        <button class="key" data-key="r">r</button>
-        <button class="key" data-key="t">t</button>
-        <button class="key" data-key="y">y</button>
-        <button class="key" data-key="u">u</button>
-        <button class="key" data-key="i">i</button>
-        <button class="key" data-key="o">o</button>
-        <button class="key" data-key="p">p</button>
+        <button class="key char-key" data-key="q">q</button>
+        <button class="key char-key" data-key="w">w</button>
+        <button class="key char-key" data-key="e">e</button>
+        <button class="key char-key" data-key="r">r</button>
+        <button class="key char-key" data-key="t">t</button>
+        <button class="key char-key" data-key="y">y</button>
+        <button class="key char-key" data-key="u">u</button>
+        <button class="key char-key" data-key="i">i</button>
+        <button class="key char-key" data-key="o">o</button>
+        <button class="key char-key" data-key="p">p</button>
       </div>
       <div class="keyboard-row">
-        <button class="key" data-key="a">a</button>
-        <button class="key" data-key="s">s</button>
-        <button class="key" data-key="d">d</button>
-        <button class="key" data-key="f">f</button>
-        <button class="key" data-key="g">g</button>
-        <button class="key" data-key="h">h</button>
-        <button class="key" data-key="j">j</button>
-        <button class="key" data-key="k">k</button>
-        <button class="key" data-key="l">l</button>
+        <button class="key char-key" data-key="a">a</button>
+        <button class="key char-key" data-key="s">s</button>
+        <button class="key char-key" data-key="d">d</button>
+        <button class="key char-key" data-key="f">f</button>
+        <button class="key char-key" data-key="g">g</button>
+        <button class="key char-key" data-key="h">h</button>
+        <button class="key char-key" data-key="j">j</button>
+        <button class="key char-key" data-key="k">k</button>
+        <button class="key char-key" data-key="l">l</button>
       </div>
       <div class="keyboard-row">
-        <button class="key" data-key="z">z</button>
-        <button class="key" data-key="x">x</button>
-        <button class="key" data-key="c">c</button>
-        <button class="key" data-key="v">v</button>
-        <button class="key" data-key="b">b</button>
-        <button class="key" data-key="n">n</button>
-        <button class="key" data-key="m">m</button>
+        <button class="key special shift-key" id="shift-btn" data-key="Shift">⇧ Shift</button>
+        <button class="key char-key" data-key="z">z</button>
+        <button class="key char-key" data-key="x">x</button>
+        <button class="key char-key" data-key="c">c</button>
+        <button class="key char-key" data-key="v">v</button>
+        <button class="key char-key" data-key="b">b</button>
+        <button class="key char-key" data-key="n">n</button>
+        <button class="key char-key" data-key="m">m</button>
         <button class="key special" data-key="Backspace">⌫</button>
       </div>
       <div class="keyboard-row">
@@ -561,6 +609,8 @@
     let timer = null;
     let isCompleted = false;
 
+    let isShiftActive = false;
+
     let audioCtx = null;
 
     function playCreamySound(type = 'default') {
@@ -607,6 +657,8 @@
     const modeControls = document.getElementById("mode-controls");
     const liveStats = document.getElementById("live-stats");
     const virtualKeyboard = document.getElementById("virtual-keyboard");
+    const mobileToggleBtn = document.getElementById("mobile-toggle-btn");
+    const shiftBtn = document.getElementById("shift-btn");
 
     const wpmVal = document.getElementById("wpm-val");
     const accVal = document.getElementById("acc-val");
@@ -722,7 +774,21 @@
       resultsContainer.style.display = "flex";
     }
 
-    // 공통 입력 처리함수 (물리 키보드 & 가상 키보드 모두 대응)
+    function toggleShiftState(state) {
+      isShiftActive = (state !== undefined) ? state : !isShiftActive;
+      
+      if (isShiftActive) {
+        shiftBtn.classList.add("active-shift");
+      } else {
+        shiftBtn.classList.remove("active-shift");
+      }
+
+      document.querySelectorAll(".char-key").forEach(btn => {
+        const k = btn.dataset.key;
+        btn.textContent = isShiftActive ? k.toUpperCase() : k.toLowerCase();
+      });
+    }
+
     function handleInputKey(keyVal) {
       if (isCompleted) return;
 
@@ -744,19 +810,29 @@
         return;
       }
 
-      if (keyVal.length === 1 && charIndex < text.length) {
+      if (keyVal === "Shift") {
+        toggleShiftState();
+        return;
+      }
+
+      let actualKey = keyVal;
+      if (keyVal.length === 1 && isShiftActive) {
+        actualKey = keyVal.toUpperCase();
+      }
+
+      if (actualKey.length === 1 && charIndex < text.length) {
         totalTyped++;
-        playCreamySound(keyVal === " " ? 'space' : 'default');
+        playCreamySound(actualKey === " " ? 'space' : 'default');
 
-        // 대소문자 구분을 위해 현재 타이핑할 글자와 비교
-        const targetChar = text[charIndex];
-        const isMatch = (keyVal.toLowerCase() === targetChar.toLowerCase());
-
-        if (isMatch) {
+        if (actualKey === text[charIndex]) {
           chars[charIndex].className = "char correct";
         } else {
           chars[charIndex].className = "char incorrect";
           mistakes++;
+        }
+
+        if (isShiftActive) {
+          toggleShiftState(false);
         }
 
         charIndex++;
@@ -780,12 +856,10 @@
       }
     }
 
-    // 실제 키보드 입력
     window.addEventListener("keydown", (e) => {
       if (isCompleted || e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key === " ") e.preventDefault();
 
-      // 화면 키보드 눌림 피드백
       const keyBtn = virtualKeyboard.querySelector(`[data-key="${e.key.toLowerCase()}"]`) || 
                      virtualKeyboard.querySelector(`[data-key="${e.key}"]`);
       if (keyBtn) {
@@ -796,14 +870,22 @@
       handleInputKey(e.key);
     });
 
-    // 가상 키보드 터치/클릭 입력
     virtualKeyboard.addEventListener("click", (e) => {
       const btn = e.target.closest(".key");
       if (!btn) return;
 
-      const keyVal = btn.dataset.key;
+      let keyVal = btn.dataset.key;
+      if (btn.classList.contains("char-key") && isShiftActive) {
+        keyVal = keyVal.toUpperCase();
+      }
+
       handleInputKey(keyVal);
       btn.blur();
+    });
+
+    mobileToggleBtn.addEventListener("click", () => {
+      const isOpen = virtualKeyboard.classList.toggle("open");
+      mobileToggleBtn.classList.toggle("active", isOpen);
     });
 
     modeControls.addEventListener("click", (e) => {
