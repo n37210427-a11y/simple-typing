@@ -50,17 +50,26 @@
     }
 
     .logo {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 600;
       letter-spacing: -0.03em;
       color: var(--text-main);
       text-decoration: none;
       cursor: pointer;
-      transition: opacity 0.3s var(--ease);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      border: 1px solid transparent;
+      transition: all 0.3s var(--ease);
     }
 
     .logo:hover {
-      opacity: 0.8;
+      background-color: var(--surface);
+      border-color: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .logo:active {
+      transform: translateY(0px) scale(0.98);
     }
 
     .controls {
@@ -276,7 +285,6 @@
 
   <div class="container">
     <header>
-      <!-- href 속성에 이동하고 싶은 URL을 입력하세요 -->
       <a href="https://example.com" class="logo">The Simple Series</a>
       <nav class="controls" id="mode-controls">
         <button class="btn active" data-count="1">1 sent</button>
