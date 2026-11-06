@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Typing</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #262626;
+      --text-main: #ffffff;
+      --text-muted: #404040;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--surface);
+      padding: 0.25rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+
+    .btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s var(--ease);
+    }
+
+    .btn:hover { color: var(--text-main); }
+    .btn.active {
+      background: var(--text-main);
+      color: var(--bg);
+    }
+
+    .stats {
+      display: flex;
+      gap: 3rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      height: 280px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .center-cursor {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 2.2rem;
+      background-color: var(--text-main);
+      z-index: 10;
+      pointer-events: none;
+      animation: pulse 1s infinite var(--ease);
+    }
+
+    .stream-track {
+      position: absolute;
+      left: 50%;
+      white-space: nowrap;
+      font-size: 2rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .char {
+      display: inline-block;
+      color: var(--text-muted);
+      padding: 0 2px;
+      transition: color 0.3s var(--ease), text-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+    }
+
+    .char.correct {
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    .char.incorrect {
+      color: var(--bg);
+      text-shadow: 
+        -1px -1px 0 #fff,  
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff,
+         0 0 12px rgba(255, 255, 255, 1);
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    .progress-bar-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--text-main);
+      transition: width 0.3s var(--ease);
+    }
+
+    .results-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+      padding: 1rem;
+      animation: fadeIn 0.5s var(--ease) forwards;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 640px;
+      text-align: center;
+    }
+
+    .result-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .result-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .action-btn {
+      background: var(--text-main);
+      color: var(--bg);
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+    }
+
+    .action-btn.secondary {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .action-btn:hover {
+      opacity: 0.85;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo">MonoStream.</div>
+      <nav class="controls" id="mode-controls">
+        <button class="btn active" data-count="1">1 Sentence</button>
+        <button class="btn" data-count="5">5</button>
+        <button class="btn" data-count="10">10</button>
+        <button class="btn" data-count="20">20</button>
+        <button class="btn" data-count="50">50</button>
+        <button class="btn" data-count="100">100</button>
+      </nav>
+    </header>
+
+    <div class="stats" id="live-stats">
+      <div class="stat-item">
+        <span class="stat-label">WPM</span>
+        <span class="stat-value" id="wpm-val">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Accuracy</span>
+        <span class="stat-value" id="acc-val">100%</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Progress</span>
+        <span class="stat-value" id="progress-val">0 / 1</span>
+      </div>
+    </div>
+
+    <main class="card" id="card">
+      <div class="center-cursor" id="cursor"></div>
+      <div class="stream-track" id="stream-track"></div>
+      
+      <div class="results-container" id="results">
+        <div class="results-grid">
+          <div class="result-box">
+            <span class="result-label">Time</span>
+            <span class="result-value" id="res-time">0s</span>
+          </div>
+          <div class="result-box">
+            <span class="result-label">WPM</span>
+            <span class="result-value" id="res-wpm">0</span>
+          </div>
+          <div class="result-box">
+            <span class="result-label">Accuracy</span>
+            <span class="result-value" id="res-acc">100%</span>
+          </div>
+          <div class="result-box">
+            <span class="result-label">Top Rank</span>
+            <span class="result-value" id="res-top">Top 50%</span>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="action-btn" id="restart-btn">Restart</button>
+          <button class="action-btn secondary" id="home-btn">Home</button>
+        </div>
+      </div>
+
+      <div class="progress-bar-bg" id="progress-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const pool = [
+      "Simplicity is the ultimate sophistication.",
+      "Focus on being productive instead of busy.",
+      "Clear thinking requires courage rather than intelligence.",
+      "Design is not just what it looks like and feels like.",
+      "Action expresses priorities in every single moment.",
+      "Consistency is the playground of true mastery.",
+      "Silence is a source of great strength and clarity.",
+      "Small daily improvements over time lead to stunning results.",
+      "Quality is not an act, it is a persistent habit.",
+      "Turn your obstacles into meaningful innovation.",
+      "Knowledge is of no value unless you put it into practice.",
+      "Energy flows where attention goes.",
+      "Everything you can imagine is real.",
+      "Change the way you look at things and the things you look at change.",
+      "Be yourself; everyone else is already taken.",
+      "Fall seven times and stand up eight.",
+      "The secret of getting ahead is getting started.",
+      "Don't count the days, make the days count.",
+      "Perfection is not attainable, but if we chase perfection we can catch excellence.",
+      "Life is what happens when you're busy making other plans.",
+      "Do what you can with all you have, wherever you are.",
+      "It does not matter how slowly you go as long as you do not stop.",
+      "Your time is limited, so don't waste it living someone else's life.",
+      "Believe you can and you're halfway there.",
+      "The future belongs to those who believe in the beauty of their dreams.",
+      "You must be the change you wish to see in the world.",
+      "Spread love everywhere you go.",
+      "We live in a wonderful world that is full of beauty, charm and adventure.",
+      "In the middle of every difficulty lies opportunity.",
+      "The best way to predict the future is to create it.",
+      "I find that the harder I work, the more luck I seem to have.",
+      "Starting is the hardest part of any journey.",
+      "Curiosity is the wick in the candle of learning.",
+      "Great things are done by a series of small things brought together.",
+      "Keep your face always toward the sunshine and shadows will fall behind you.",
+      "Strive not to be a success, but rather to be of value.",
+      "Mindfulness means being awake and aware of what is happening.",
+      "A journey of a thousand miles begins with a single step.",
+      "Don't wait for opportunity. Create it.",
+      "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+      "The only limit to our realization of tomorrow is our doubts of today.",
+      "Do what you love and the money will follow.",
+      "Creativity is intelligence having fun.",
+      "The mind is everything. What you think you become.",
+      "An unexamined life is not worth living.",
+      "Yesterday is history, tomorrow is a mystery, today is a gift.",
+      "Life is either a daring adventure or nothing at all.",
+      "To live is the rarest thing in the world. Most people exist, that is all.",
+      "True knowledge is knowing what you don't know.",
+      "Happiness depends upon ourselves.",
+      "He who has a why to live can bear almost any how.",
+      "Turn your wounds into wisdom.",
+      "Doubt kills more dreams than failure ever will.",
+      "It always seems impossible until it's done.",
+      "Education is the passport to the future.",
+      "Do one thing every day that scares you.",
+      "Well done is better than well said.",
+      "Bad times can lead to good lessons.",
+      "Don't let yesterday take up too much of today.",
+      "You learn more from failure than from success.",
+      "If you are working on something that you really care about, you don't have to be pushed.",
+      "Experience is simply the name we give our mistakes.",
+      "Timing, perseverance, and years of trying will eventually make you look successful.",
+      "If you want to lift yourself up, lift up someone else.",
+      "I can accept failure, everyone fails at something. But I can't accept not trying.",
+      "The person who says it cannot be done should not interrupt the person who is doing it.",
+      "There are no shortcuts to any place worth going.",
+      "Write it on your heart that every day is the best day in the year.",
+      "You don't have to be great to start, but you have to start to be great.",
+      "A creative person is motivated by the desire to achieve, not by beating others.",
+      "Logic will get you from A to B. Imagination will take you everywhere.",
+      "The secret of success is constancy to purpose.",
+      "Quality is never an accident; it is always the result of high intention.",
+      "Genius is one percent inspiration and ninety-nine percent perspiration.",
+      "What we think, we become.",
+      "The best revenge is massive success.",
+      "Gratitude turns what we have into enough.",
+      "Honesty is the first chapter in the book of wisdom.",
+      "The harder you fall, the higher you bounce.",
+      "Opportunities don't happen, you create them.",
+      "Success usually comes to those who are too busy to be looking for it.",
+      "Keep your eyes on the stars, and your feet on the ground.",
+      "The only person you should try to be better than is the person you were yesterday.",
+      "Never bend your head. Always hold it high.",
+      "What you get by achieving goals is not as important as what you become.",
+      "Believe in yourself and all that you are.",
+      "It's not whether you get knocked down, it's whether you get up.",
+      "If opportunity doesn't knock, build a door.",
+      "Wise men speak because they have something to say; fools because they have to say something.",
+      "The successful warrior is the average man, with laser-like focus.",
+      "A goal is a dream with a deadline.",
+      "Peace comes from within. Do not seek it without.",
+      "Knowing yourself is the beginning of all wisdom.",
+      "The root of education is bitter, but its fruit is sweet.",
+      "Tell me and I forget. Teach me and I remember. Involve me and I learn.",
+      "Failure is success in progress.",
+      "Wisdom is knowing when to speak your mind and when to mind your speech.",
+      "An investment in knowledge pays the best interest.",
+      "It is during our darkest moments that we must focus to see the light.",
+      "In character, in manner, in style, in all things, the supreme excellence is simplicity."
+    ];
+
+    let targetSentences = [];
+    let currentSentenceIndex = 0;
+    let charIndex = 0;
+    let mistakes = 0;
+    let totalTyped = 0;
+    let startTime = null;
+    let timer = null;
+    let isCompleted = false;
+
+    let audioCtx = null;
+
+    function playCreamySound(type = 'default') {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      const now = audioCtx.currentTime;
+
+      osc.type = 'sine';
+      
+      let baseFreq = 340 + (Math.random() * 25 - 12.5);
+      if (type === 'space') baseFreq = 250;
+      if (type === 'backspace') baseFreq = 210;
+
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, now + 0.08);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(600, now);
+
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+    }
+
+    const track = document.getElementById("stream-track");
+    const cursor = document.getElementById("cursor");
+    const resultsContainer = document.getElementById("results");
+    const progressBg = document.getElementById("progress-bg");
+    const modeControls = document.getElementById("mode-controls");
+    const liveStats = document.getElementById("live-stats");
+
+    const wpmVal = document.getElementById("wpm-val");
+    const accVal = document.getElementById("acc-val");
+    const progressVal = document.getElementById("progress-val");
+    const progressFill = document.getElementById("progress-fill");
+
+    const restartBtn = document.getElementById("restart-btn");
+    const homeBtn = document.getElementById("home-btn");
+
+    function generateSentences(count) {
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+
+    function init(count = 1) {
+      targetSentences = generateSentences(count);
+      currentSentenceIndex = 0;
+      charIndex = 0;
+      mistakes = 0;
+      totalTyped = 0;
+      startTime = null;
+      isCompleted = false;
+      clearInterval(timer);
+
+      wpmVal.textContent = "0";
+      accVal.textContent = "100%";
+      progressVal.textContent = `0 / ${count}`;
+      progressFill.style.width = "0%";
+
+      resultsContainer.style.display = "none";
+      cursor.style.display = "block";
+      track.style.display = "block";
+      progressBg.style.display = "block";
+      liveStats.style.opacity = "1";
+
+      renderSentence();
+    }
+
+    function renderSentence() {
+      const text = targetSentences[currentSentenceIndex];
+      track.style.transition = "none";
+      track.style.transform = "translateX(0px)";
+      
+      track.innerHTML = text
+        .split("")
+        .map((char) => `<span class="char">${char === " " ? "&nbsp;" : char}</span>`)
+        .join("");
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          track.style.transition = "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+          updateTrackPosition();
+        });
+      });
+    }
+
+    function updateTrackPosition() {
+      const chars = track.querySelectorAll(".char");
+      if (chars.length === 0) return;
+
+      let offsetLeft = 0;
+      if (charIndex < chars.length) {
+        offsetLeft = chars[charIndex].offsetLeft;
+      } else {
+        const lastChar = chars[chars.length - 1];
+        offsetLeft = lastChar.offsetLeft + lastChar.offsetWidth;
+      }
+      
+      track.style.transform = `translateX(-${offsetLeft}px)`;
+    }
+
+    function updateStats() {
+      if (!startTime) return;
+      const elapsedMinutes = (performance.now() - startTime) / 60000;
+      if (elapsedMinutes === 0) return;
+
+      const wordsTyped = (totalTyped - mistakes) / 5;
+      const wpm = Math.max(0, Math.round(wordsTyped / elapsedMinutes));
+      const accuracy = totalTyped > 0 ? Math.round(((totalTyped - mistakes) / totalTyped) * 100) : 100;
+
+      wpmVal.textContent = wpm;
+      accVal.textContent = `${Math.max(0, accuracy)}%`;
+    }
+
+    function calculateTopRank(wpm) {
+      let topPercentile = 100 - Math.min(99, Math.max(1, Math.round((wpm / 120) * 100)));
+      return topPercentile;
+    }
+
+    function showResults() {
+      isCompleted = true;
+      clearInterval(timer);
+
+      const endTime = performance.now();
+      const totalSeconds = ((endTime - startTime) / 1000).toFixed(1);
+      const elapsedMinutes = totalSeconds / 60;
+
+      const wordsTyped = (totalTyped - mistakes) / 5;
+      const finalWpm = Math.max(0, Math.round(wordsTyped / elapsedMinutes));
+      const accuracy = totalTyped > 0 ? Math.round(((totalTyped - mistakes) / totalTyped) * 100) : 100;
+      const topRank = calculateTopRank(finalWpm);
+
+      document.getElementById("res-time").textContent = `${totalSeconds}s`;
+      document.getElementById("res-wpm").textContent = finalWpm;
+      document.getElementById("res-acc").textContent = `${accuracy}%`;
+      document.getElementById("res-top").textContent = `Top ${topRank}%`;
+
+      cursor.style.display = "none";
+      track.style.display = "none";
+      progressBg.style.display = "none";
+      liveStats.style.opacity = "0.3";
+
+      resultsContainer.style.display = "flex";
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (isCompleted || e.ctrlKey || e.altKey || e.metaKey) return;
+
+      if (e.key === " ") {
+        e.preventDefault();
+      }
+
+      const text = targetSentences[currentSentenceIndex];
+      const chars = track.querySelectorAll(".char");
+
+      if (!startTime) {
+        startTime = performance.now();
+        timer = setInterval(updateStats, 500);
+      }
+
+      if (e.key === "Backspace") {
+        playCreamySound('backspace');
+        if (charIndex > 0) {
+          charIndex--;
+          chars[charIndex].className = "char";
+          updateTrackPosition();
+        }
+        return;
+      }
+
+      if (e.key.length === 1 && charIndex < text.length) {
+        totalTyped++;
+        playCreamySound(e.key === " " ? 'space' : 'default');
+
+        if (e.key === text[charIndex]) {
+          chars[charIndex].className = "char correct";
+        } else {
+          chars[charIndex].className = "char incorrect";
+          mistakes++;
+        }
+
+        charIndex++;
+        updateTrackPosition();
+
+        if (charIndex === text.length) {
+          setTimeout(() => {
+            currentSentenceIndex++;
+            const total = targetSentences.length;
+            progressVal.textContent = `${currentSentenceIndex} / ${total}`;
+            progressFill.style.width = `${(currentSentenceIndex / total) * 100}%`;
+
+            if (currentSentenceIndex < total) {
+              charIndex = 0;
+              renderSentence();
+            } else {
+              showResults();
+            }
+          }, 200);
+        }
+      }
+    });
+
+    modeControls.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("btn")) return;
+      document.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      init(parseInt(e.target.dataset.count, 10));
+      e.target.blur();
+    });
+
+    restartBtn.addEventListener("click", (e) => {
+      const activeBtn = document.querySelector(".btn.active");
+      const count = activeBtn ? parseInt(activeBtn.dataset.count, 10) : 1;
+      init(count);
+      e.target.blur();
+    });
+
+    homeBtn.addEventListener("click", (e) => {
+      document.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      document.querySelector('.btn[data-count="1"]').classList.add("active");
+      init(1);
+      e.target.blur();
+    });
+
+    init(1);
+  </script>
+</body>
+</html>
