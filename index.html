@@ -53,6 +53,14 @@
       font-size: 1.25rem;
       font-weight: 600;
       letter-spacing: -0.03em;
+      color: var(--text-main);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.3s var(--ease);
+    }
+
+    .logo:hover {
+      opacity: 0.8;
     }
 
     .controls {
@@ -268,7 +276,8 @@
 
   <div class="container">
     <header>
-      <div class="logo">The Simple Series</div>
+      <!-- href 속성에 이동하고 싶은 URL을 입력하세요 -->
+      <a href="https://example.com" class="logo">The Simple Series</a>
       <nav class="controls" id="mode-controls">
         <button class="btn active" data-count="1">1 sent</button>
         <button class="btn" data-count="5">5 sent</button>
