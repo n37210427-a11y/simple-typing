@@ -1,1 +1,1 @@
-# simple-_typing
+# simple_typing
